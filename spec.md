@@ -1,55 +1,83 @@
-# Focus Point — System Specification & Integration Manifest (`spec.md`)
+# The ANTS — System Specification & Integration Manifest (`spec.md`)
 
 ## 1. Project Architecture & Tech Stack
 - **Frontend Framework:** Next.js 16 (App Router)
 - **Styling:** Tailwind CSS v4
 - **Language:** TypeScript 5
 - **Backend/Database:** Supabase (PostgreSQL, Auth, Storage)
-- **MVP State:** Mock data via `src/lib/mockDatabase.ts` before Supabase binding.
+- **MVP State:** Mock data via `src/lib/mock/database.ts` before Supabase binding.
 - **Hosting:** Vercel
 
+---
+
 ## 2. User Roles & Permissions
-Privacy and access boundaries are strictly enforced.
-- **Student:** Primary user. Has access to personal dashboard, study tools, timetables, and grade calculators.
-- **Teacher:** Paid tier. Can create virtual classrooms, issue assignments, and view performance *only* for students inside their authorized classrooms. 
-- **Contributor:** Verified experts. Can create/edit global curriculum templates, exams, and shared library notes.
+Privacy and access boundaries are strictly enforced. There are **four roles**, selected at signup (one email can hold multiple roles).
+
+| Role | Who | What they can access |
+|---|---|---|
+| **Student** | Primary users | All personal study tools (Timetable, Pomodoro, Flashcards, Lesson Tracker, Course Manager, Exam Countdown, Grade Calculator), Classrooms (join), Clubs (join) |
+| **Teacher** | Paid tier | Everything Student gets + create & manage Classrooms, issue Assignments, monitor student progress within their classrooms, Clubs (join & participate) |
+| **Contributor** | Verified experts | Everything Teacher gets + Curriculum & Notes Editor, Exam Data Editor, lead Clubs, publicly visible Contributor Profile |
+| **Main Contributor** | Senior verified experts | Everything Contributor gets + Gatekeeper Review Queue (approve, reject, or request revisions on Contributor submissions before they go public) |
+
+> **Note:** `main_contributor` is a **separate top-level role** — not a flag or sub-role. It is stored as an enum value in the `profiles.role` column.
+
+---
 
 ## 3. Directory Isolation Boundaries
 Developers are strictly confined to their designated workspace paths. You are prohibited from editing files outside your assigned directories. The **Project Manager (PM)** owns all shared infrastructure.
 
-| Developer | Feature Ownership | Assigned Paths |
-|---|---|---|
-| Phuu Pwint Paing | Smart Timetable, Pomodoro Timer | `src/components/timetable/`, `src/components/pomodoro/`, `src/hooks/usePomodoro.ts`, `src/hooks/useTimetable.ts`, `src/context/TimerContext.tsx`, `src/constants/timetable.ts`, `src/constants/pomodoro.ts`, `src/actions/timetable.ts` |
-| Bhone Myat Kaung & Aung Bhone Chaint | Lesson Tracker, Course Manager, Curriculum & Notes Editor, Classrooms | `src/components/lessons/`, `src/components/courses/`, `src/components/classrooms/`, `src/components/editor/`, `src/actions/classrooms.ts`, `src/actions/editor.ts` |
-| Aung Khant Thaw | Grade Calculator, Exam Countdown | `src/components/calculator/`, `src/components/countdown/`, `src/hooks/useCountdown.ts`, `src/constants/gradeBoundaries.ts`, `src/lib/srs/` *(read-only reference)* |
-| Zyy Lin Htet | Public Home Page, Login & Signup | `src/app/page.tsx`, `src/app/(auth)/`, `src/components/auth/`, `src/app/not-found.tsx` |
-| Min Khit Paing | Flashcard Creator & Library | `src/components/flashcards/`, `src/hooks/useFlashcardSRS.ts`, `src/actions/flashcards.ts` |
-| Thaw Ye Zaw ( PM ) | Shared Infrastructure | `src/lib/`, `src/types/`, `src/context/AuthContext.tsx`, `src/context/PersonaContext.tsx`, `src/components/ui/`, `src/components/layout/`, `src/hooks/useAuth.ts`, `src/hooks/useRole.ts`, `src/constants/qualifications.ts`, `middleware.ts`, `supabase/`, `src/app/(app)/layout.tsx`, `src/app/(app)/dashboard/` |
+| Developer      | Feature Ownership                                                                                                       | Assigned Paths                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ----------------| -------------------------------------------------------------------------------------------------------------------------| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `PPP`          | **Smart Timetable, Pomodoro Timer**                                                                                     | `src/components/timetable/`, `src/components/pomodoro/`, `src/hooks/usePomodoro.ts`, `src/hooks/useTimetable.ts`, `src/context/TimerContext.tsx`, `src/constants/timetable.ts`, `src/constants/pomodoro.ts`, `src/actions/timetable.ts`                                                                                                                                                                                                                                                               |
+| `BMK` & `ABC`  | **Lesson Tracker, Course Manager, Curriculum & Notes Editor, Exam Data Editor, Classrooms**                            | `src/components/lessons/`, `src/components/courses/`, `src/components/classrooms/`, `src/components/editor/`, `src/actions/classrooms.ts`, `src/actions/editor.ts`                                                                                                                                                                                                                                                                                                                                    |
+| `ZLH`          | **Flashcard Creator & Library, Exam Countdown**                                                                         | `src/components/flashcards/`, `src/components/countdown/`, `src/hooks/useFlashcardSRS.ts`, `src/hooks/useCountdown.ts`, `src/actions/flashcards.ts`                                                                                                                                                                                                                                                                                                                                                   |
+| `AKT`          | **Grade Calculator, Clubs**                                                                                             | `src/components/calculator/`, `src/components/clubs/`, `src/hooks/useClub.ts`, `src/actions/clubs.ts`, `src/constants/gradeBoundaries.ts`                                                                                                                                                                                                                                                                                                                                                             |
+| **PM (`TYZ`)** | Shared Infrastructure, Public Home Page, Login & Signup, Role Landing Pages, NavBar, Contributor Profiles, Review Queue | `src/lib/`, `src/types/`, `src/context/AuthContext.tsx`, `src/context/PersonaContext.tsx`, `src/components/ui/`, `src/components/layout/`, `src/components/auth/`, `src/components/profile/`, `src/hooks/useAuth.ts`, `src/hooks/useRole.ts`, `src/constants/qualifications.ts`, `middleware.ts`, `supabase/`, `src/app/(app)/layout.tsx`, `src/app/(app)/student/`, `src/app/(app)/teacher/`, `src/app/(app)/contributor/`, `src/app/(app)/main-contributor/`, `src/app/page.tsx`, `src/app/(auth)/` |
+
+---
 
 ## 4. Vibe-Coding Guardrails (Non-Negotiable)
-To prevent "Schema Chaos" and integration breakdowns when using Gemini Code Assist, the following rules apply to all team members:
+To prevent "Schema Chaos" and integration breakdowns when using AI coding assistants, the following rules apply to all team members:
 
 1. **The Database Gatekeeper:** The Project Manager is the sole administrator of the live database instance. Developers may not alter tables, triggers, or Row-Level Security (RLS) rules without approval.
-2. **Unified Data Facade:** All mock data queries must pass through `src/lib/mockDatabase.ts`). Do not invent custom isolated data schemas.
+2. **Unified Data Facade:** All mock data queries must pass through `src/lib/mock/database.ts`. Do not invent custom isolated data schemas.
 3. **Atomic Feature Branching:** All work must happen on dedicated task branches (e.g., `feature/timetable-ui`). Never push directly to `main` or `dev`.
 4. **Morning Sync:** Pull the latest stable code (`git pull origin dev`) every morning before vibe-coding.
 5. **Client Components:** Any interactive UI (timers, calculators, interactive forms) must start with the `'use client';` directive to avoid crashing Next.js Server Components.
+6. **Four-Role Awareness:** The persona context exposes four roles: `student`, `teacher`, `contributor`, `main_contributor`. Always use `useRole()` to guard feature access — never hard-code role strings in component logic.
+
+---
 
 ## 5. Mandatory AI Prompt Preamble (Context Shield)
-Before starting a generation session in VS Code, every developer **must** paste the following Context Shield into AI agent:
+Before starting a generation session in VS Code, every developer **must** paste the following Context Shield into the AI agent:
 
-> *"You are building inside my isolated feature folder under `src/components/[Your-Feature-Folder]/`. You must respect the project architecture constraints detailed in `spec.md`, use the database typing declarations in `types/supabase.ts`, and pull data operations exclusively through our shared study-data mock database facade. Do not invent custom database properties, unmapped relational paths, or arbitrary styling elements (e.g. hardcoded pixels like `p-[13px]`) that cause utility bloat. If this module relies on user interactions, build it as a Next.js Client Component starting with the 'use client' directive."*
+> *"You are building inside my isolated feature folder under `src/components/[Your-Feature-Folder]/`. You must respect the project architecture constraints detailed in `spec.md`, use the database typing declarations in `types/supabase.ts`, and pull data operations exclusively through our shared study-data mock database facade at `src/lib/mock/database.ts`. Do not invent custom database properties, unmapped relational paths, or arbitrary styling elements (e.g. hardcoded pixels like `p-[13px]`) that cause utility bloat. If this module relies on user interactions, build it as a Next.js Client Component starting with the `'use client'` directive. The app uses four roles: `student`, `teacher`, `contributor`, `main_contributor` — use `useRole()` from `src/hooks/useRole.ts` for any role-gated logic."*
+
+---
 
 ## 6. Database Schema Map (PostgreSQL)
 *(Note: Full types are generated via Supabase CLI in `types/supabase.ts`)*
 
-- `profiles`: [Placeholder for User metadata & Role statuses]
-- `curriculums`: [Placeholder for Global templates - IGCSE, SAT, etc.]
-- `user_curriculums`: [Placeholder for Junction table mapping students to multiple curriculums]
-- `topics` & `student_topics`: [Placeholder for Syllabus breakdown and localized confidence levels]
-- `classrooms`: [Placeholder for mapping class ID, teacher ID, and curriculum ID]
-- `timetable_events`: [Placeholder for JSONB scheduling arrays]
-- `flashcards` & `card_reviews`: [Placeholder for spaced-repetition logic]
+- `profiles`: [User metadata, role statuses (`student | teacher | contributor | main_contributor`), and public Contributor profile fields (name, title, avatar, bio, social links)]
+- `curriculums`: [Global templates — IGCSE, SAT, etc.]
+- `user_curriculums`: [Junction table mapping students to multiple curriculums]
+- `topics` & `student_topics`: [Syllabus breakdown and localised confidence levels]
+- `classrooms`: [Mapping class ID, teacher ID, and curriculum ID]
+- `timetable_events`: [JSONB scheduling arrays]
+- `flashcards` & `card_reviews`: [Spaced-repetition logic]
+- `clubs`: [Club ID, creator (Contributor) ID, subject/curriculum link, join mode (invite/approval)]
+- `club_members`: [Junction table mapping users to clubs, with membership status (pending/approved)]
+- `club_messages`: [Chat messages within a club, with timestamp and sender ID]
+- `club_announcements`: [Pinned announcements posted by club leaders]
+- `club_links`: [Resource links shared within a club]
+- `editor_submissions`: [Curriculum, notes, and exam data submissions from Contributors; includes `status` field (`draft | pending_review | approved | rejected`) updated by Main Contributors via the Review Queue]
+
+> **Migration note:** The `profiles.role` column uses a PostgreSQL enum. The `main_contributor` value must be added via migration:
+> ```sql
+> ALTER TYPE user_role ADD VALUE 'main_contributor';
+> ```
+> RLS policies on `editor_submissions` must allow Main Contributors to `UPDATE` the `status` field.
 
 ---
 
@@ -58,129 +86,189 @@ Before starting a generation session in VS Code, every developer **must** paste 
 This directory tree is the **absolute source of truth** for file placement. AI Agents and Developers must follow this structure exactly. Do not create new top-level directories without PM approval.
 
 ```text
-focus-point/                        # Project root
-├── middleware.ts                   # 🔒 TYZ — Route protection (redirects unauthenticated users)
-├── supabase/                       # 🔒 TYZ — Supabase CLI local config
+the-ants/                                 # Project root
+├── middleware.ts                         # 🔒 PM — Route protection + post-login role redirect
+├── supabase/                             # 🔒 PM — Supabase CLI local config
 │   ├── config.toml
-│   ├── seed.sql                    # Dev seed data
-│   └── migrations/                 # SQL migration files (version-controlled schema changes)
+│   ├── seed.sql                          # Dev seed data
+│   └── migrations/                       # SQL migration files (version-controlled schema changes)
 │
 ├── public/
-│   ├── sounds/                     # 🔒 PPP — Pomodoro background music (mp3/ogg)
-│   └── icons/                      # 🔒 TYZ — Exam board logos & app icons
+│   ├── sounds/                           # 🔒 PPP — Pomodoro background music (mp3/ogg)
+│   └── icons/                            # 🔒 PM — Exam board logos & app icons
 │
 └── src/
-    ├── app/                        # Next.js 16 App Router (Server Components by default)
-    │   ├── layout.tsx              # 🔒 TYZ — Root layout (providers, global fonts, metadata)
-    │   ├── page.tsx                # 🔒 ZLH — Public landing / home page
-    │   ├── not-found.tsx           # 🔒 ZLH — Global 404 page
+    ├── app/                              # Next.js 16 App Router (Server Components by default)
+    │   ├── layout.tsx                    # 🔒 PM — Root layout (providers, global fonts, metadata)
+    │   ├── page.tsx                      # 🔒 PM (TYZ) — Public landing / home page
+    │   ├── not-found.tsx                 # 🔒 PM — Global 404 page
     │   │
-    │   ├── (auth)/                 # 🔒 ZLH — Auth route group (no shell/sidebar)
+    │   ├── (auth)/                       # 🔒 PM (TYZ) — Auth route group (no shell/nav bar)
     │   │   ├── login/
-    │   │   │   └── page.tsx        # Login page
+    │   │   │   └── page.tsx              # Login page
     │   │   └── signup/
-    │   │       └── page.tsx        # Signup / role selection page
+    │   │       └── page.tsx              # Signup / role selection page (4 roles)
     │   │
-    │   └── (app)/                  # Authenticated shell (Route Group — requires login)
-    │       ├── layout.tsx          # 🔒 TYZ — App shell (Sidebar + TopNav wraps all authed routes)
-    │       ├── loading.tsx         # 🔒 TYZ — Global skeleton loader
-    │       ├── dashboard/
-    │       │   └── page.tsx        # 🔒 TYZ — Role-based dashboard (Student / Teacher / Contributor)
+    │   └── (app)/                        # Authenticated shell (Route Group — requires login)
+    │       ├── layout.tsx                # 🔒 PM — App shell (NavBar wraps all authed routes)
+    │       ├── loading.tsx               # 🔒 PM — Global skeleton loader
     │       │
+    │       │   # ── Role Landing Pages (replaces dashboard) ──────────────────────────
+    │       ├── student/
+    │       │   └── page.tsx              # 🔒 PM — Student landing page (today snapshot, quick links)
+    │       ├── teacher/
+    │       │   └── page.tsx              # 🔒 PM — Teacher landing page (classroom summary, assignments)
+    │       ├── contributor/
+    │       │   └── page.tsx              # 🔒 PM — Contributor landing page (my submissions, club activity)
+    │       ├── main-contributor/
+    │       │   └── page.tsx              # 🔒 PM — Main Contributor landing (pending reviews count, activity)
+    │       │
+    │       │   # ── Feature Pages ────────────────────────────────────────────────────
     │       ├── timetable/
-    │       │   └── page.tsx        # 🔒 PPP — Smart Timetable
+    │       │   └── page.tsx              # 🔒 PPP — Smart Timetable
     │       │
     │       ├── pomodoro/
-    │       │   └── page.tsx        # 🔒 PPP — Pomodoro Timer
+    │       │   └── page.tsx              # 🔒 PPP — Pomodoro Timer
     │       │
     │       ├── flashcards/
-    │       │   ├── page.tsx        # 🔒 MKP — Deck library (browse & create)
+    │       │   ├── page.tsx              # 🔒 ZLH — Deck library (browse & create)
     │       │   └── [deckId]/
-    │       │       └── page.tsx    # 🔒 MKP — Active study session for a deck
-    │       │
-    │       ├── classrooms/
-    │       │   ├── page.tsx        # 🔒 BMK & ABC — Classroom list
-    │       │   └── [id]/
-    │       │       └── page.tsx    # 🔒 BMK & ABC — Individual classroom view
-    │       │
-    │       ├── calculator/
-    │       │   └── page.tsx        # 🔒 AKT — Grade Calculator
-    │       │
-    │       ├── countdown/
-    │       │   └── page.tsx        # 🔒 @AKT — Exam Countdown manager
-    │       │
-    │       ├── editor/
-    │       │   ├── page.tsx        # 🔒 BMK & ABC — Curriculum & Notes editor
-    │       │   └── review/
-    │       │       └── page.tsx    # 🔒 TYZ — Gatekeeper approval queue
+    │       │       └── page.tsx          # 🔒 ZLH — Active study session for a deck
     │       │
     │       ├── lessons/
-    │       │   └── page.tsx        # 🔒 BMK & ABC — Lesson Tracker
+    │       │   └── page.tsx              # 🔒 BMK & ABC — Lesson Tracker
     │       │
-    │       └── courses/
-    │           └── page.tsx        # 🔒 BMK & ABC — Course Manager
+    │       ├── courses/
+    │       │   └── page.tsx              # 🔒 BMK & ABC — Course Manager
+    │       │
+    │       ├── classrooms/
+    │       │   ├── page.tsx              # 🔒 BMK & ABC — Classroom list (join view for Students; manage view for Teachers)
+    │       │   └── [id]/
+    │       │       └── page.tsx          # 🔒 BMK & ABC — Individual classroom view
+    │       │
+    │       ├── clubs/
+    │       │   ├── page.tsx              # 🔒 AKT — Club Discovery page (public listing)
+    │       │   └── [id]/
+    │       │       └── page.tsx          # 🔒 AKT — Individual club view (chat, announcements, links, members)
+    │       │
+    │       ├── countdown/
+    │       │   └── page.tsx              # 🔒 ZLH — Exam Countdown manager
+    │       │
+    │       ├── calculator/
+    │       │   └── page.tsx              # 🔒 AKT — Grade Calculator
+    │       │
+    │       │   # ── Contributor & Main Contributor Only ──────────────────────────────
+    │       ├── editor/
+    │       │   ├── page.tsx              # 🔒 BMK & ABC — Curriculum & Notes editor (Contributor+)
+    │       │   └── exam/
+    │       │       └── page.tsx          # 🔒 BMK & ABC — Exam Data editor (Contributor+)
+    │       │
+    │       ├── review/
+    │       │   └── page.tsx              # 🔒 PM — Gatekeeper / Review Queue (Main Contributor only)
+    │       │
+    │       └── profile/
+    │           └── [username]/
+    │               └── page.tsx          # 🔒 PM — Contributor public profile page (publicly accessible)
     │
-    ├── components/                 # UI components ('use client' where interactive)
-    │   ├── ui/                     # 🔒 TYZ — Shared atomic components
+    ├── components/                       # UI components ('use client' where interactive)
+    │   ├── ui/                           # 🔒 PM — Shared atomic components
     │   │   ├── Button.tsx
     │   │   ├── Modal.tsx
     │   │   ├── Input.tsx
     │   │   ├── Badge.tsx
     │   │   └── ProgressBar.tsx
-    │   ├── layout/                 # 🔒 TYZ — Global shell components
-    │   │   ├── Sidebar.tsx
-    │   │   ├── TopNav.tsx
+    │   ├── layout/                       # 🔒 PM — Global shell components
+    │   │   ├── NavBar.tsx                # Creative floating glassmorphism nav with grouped dropdowns
     │   │   └── AuthModal.tsx
-    │   ├── auth/                   # 🔒 ZLH — Login & signup form components
-    │   ├── timetable/              # 🔒 PPP
-    │   ├── pomodoro/               # 🔒 PPP
-    │   ├── lessons/                # 🔒 BMK & ABC
-    │   ├── courses/                # 🔒 BMK & ABC
-    │   ├── classrooms/             # 🔒 BMK & ABC
-    │   ├── editor/                 # 🔒 BMK & ABC
-    │   ├── calculator/             # 🔒 AKT
-    │   ├── countdown/              # 🔒 AKT
-    │   └── flashcards/             # 🔒 MKP
+    │   ├── auth/                         # 🔒 PM (TYZ) — Login & signup form components
+    │   ├── profile/                      # 🔒 PM — Contributor public profile components
+    │   ├── timetable/                    # 🔒 PPP
+    │   ├── pomodoro/                     # 🔒 PPP
+    │   ├── lessons/                      # 🔒 BMK & ABC
+    │   ├── courses/                      # 🔒 BMK & ABC
+    │   ├── classrooms/                   # 🔒 BMK & ABC
+    │   ├── clubs/                        # 🔒 AKT
+    │   ├── editor/                       # 🔒 BMK & ABC
+    │   ├── calculator/                   # 🔒 AKT
+    │   ├── countdown/                    # 🔒 ZLH
+    │   └── flashcards/                   # 🔒 ZLH
     │
-    ├── hooks/                      # Custom React Hooks (logic only — no JSX)
-    │   ├── useAuth.ts              # 🔒 TYZ — Supabase auth session wrapper
-    │   ├── useRole.ts              # 🔒 TYZ — Read current persona from context
-    │   ├── usePomodoro.ts          # 🔒 PPP — Timer state machine
-    │   ├── useTimetable.ts         # 🔒 PPP — Drag-and-drop & view switching
-    │   ├── useFlashcardSRS.ts      # 🔒 MKP — SRS review scheduling interface
-    │   └── useCountdown.ts         # 🔒 AKT — Exam date diff & urgency calc
+    ├── hooks/                            # Custom React Hooks (logic only — no JSX)
+    │   ├── useAuth.ts                    # 🔒 PM — Supabase auth session wrapper
+    │   ├── useRole.ts                    # 🔒 PM — Read current persona from context (returns isStudent, isTeacher, isContributor, isMainContributor)
+    │   ├── usePomodoro.ts                # 🔒 PPP — Timer state machine
+    │   ├── useTimetable.ts               # 🔒 PPP — Drag-and-drop & view switching
+    │   ├── useFlashcardSRS.ts            # 🔒 ZLH — SRS review scheduling interface
+    │   ├── useClub.ts                    # 🔒 AKT — Club state & membership actions
+    │   └── useCountdown.ts               # 🔒 ZLH — Exam date diff & urgency calc
     │
-    ├── context/                    # Global React Context Providers
-    │   ├── AuthContext.tsx         # 🔒 TYZ — Supabase session (required by all authed pages)
-    │   ├── PersonaContext.tsx      # 🔒 TYZ — User Role State (Student / Teacher / Contributor)
-    │   └── TimerContext.tsx        # 🔒 PPP — Global Pomodoro state (survives navigation)
+    ├── context/                          # Global React Context Providers
+    │   ├── AuthContext.tsx               # 🔒 PM — Supabase session (required by all authed pages)
+    │   ├── PersonaContext.tsx            # 🔒 PM — User Role State (student | teacher | contributor | main_contributor)
+    │   └── TimerContext.tsx              # 🔒 PPP — Global Pomodoro state (survives navigation)
     │
-    ├── actions/                    # Next.js Server Actions ('use server' — server-side mutations)
-    │   ├── timetable.ts            # 🔒 PPP
-    │   ├── flashcards.ts           # 🔒 MKP
-    │   ├── classrooms.ts           # 🔒 BMK & ABC
-    │   └── editor.ts               # 🔒 TYZ — Contributor submit & gatekeeper approve/reject
+    ├── actions/                          # Next.js Server Actions ('use server' — server-side mutations)
+    │   ├── timetable.ts                  # 🔒 PPP
+    │   ├── flashcards.ts                 # 🔒 ZLH
+    │   ├── classrooms.ts                 # 🔒 BMK & ABC
+    │   ├── clubs.ts                      # 🔒 AKT — Club CRUD, join/leave, messaging
+    │   └── editor.ts                     # 🔒 BMK & ABC — Contributor submit; PM adds review approve/reject logic
     │
-    ├── constants/                  # Static reference data (no logic — pure data)
-    │   ├── qualifications.ts       # 🔒 TYZ — Exam boards, subjects, series (CAIE, Edexcel, OSSD…)
-    │   ├── gradeBoundaries.ts      # 🔒 AKT — Official IGCSE/A-Level/IAL/OSSD boundary tables
-    │   ├── timetable.ts            # 🔒 PPP — Event type colours & repeat options
-    │   └── pomodoro.ts             # 🔒 PPP — Default intervals & music track manifest
+    ├── constants/                        # Static reference data (no logic — pure data)
+    │   ├── qualifications.ts             # 🔒 PM — Exam boards, subjects, series (CAIE, Edexcel, OSSD…)
+    │   ├── gradeBoundaries.ts            # 🔒 AKT — Official IGCSE/A-Level/IAL/OSSD boundary tables
+    │   ├── timetable.ts                  # 🔒 PPP — Event type colours & repeat options
+    │   └── pomodoro.ts                   # 🔒 PPP — Default intervals & music track manifest
     │
-    ├── lib/                        # Infrastructure clients & utilities (🔒 TYZ)
+    ├── lib/                              # Infrastructure clients & utilities (🔒 PM)
     │   ├── supabase/
-    │   │   ├── client.ts           # Browser-side Supabase client (singleton)
-    │   │   └── server.ts           # Server-side Supabase client (for RSC & Server Actions)
+    │   │   ├── client.ts                 # Browser-side Supabase client (singleton)
+    │   │   └── server.ts                 # Server-side Supabase client (for RSC & Server Actions)
     │   ├── mock/
-    │   │   └── database.ts         # MVP Phase 1: Typed mock data facade (ALL features import from here)
+    │   │   └── database.ts               # MVP Phase 1: Typed mock data facade (ALL features import from here)
     │   ├── srs/
-    │   │   └── algorithm.ts        # SM-2 / FSRS spaced repetition core algorithm
-    │   └── utils.ts                # General helpers (cn, date formatting, grade conversion)
+    │   │   └── algorithm.ts              # SM-2 / FSRS spaced repetition core algorithm
+    │   └── utils.ts                      # General helpers (cn, date formatting, grade conversion)
     │
-    └── types/                      # TypeScript Definitions (🔒 TYZ)
-        ├── index.ts                # Shared app-wide types & interfaces
-        └── supabase.ts             # Supabase CLI auto-generated DB types (prod transition)
+    └── types/                            # TypeScript Definitions (🔒 PM)
+        ├── index.ts                      # Shared app-wide types & interfaces (includes UserRole = 'student' | 'teacher' | 'contributor' | 'main_contributor')
+        └── supabase.ts                   # Supabase CLI auto-generated DB types (prod transition)
 ```
+
+---
+
+## 8. Navigation Bar Architecture
+
+The authenticated app shell uses a **single NavBar** component (`src/components/layout/NavBar.tsx`) replacing the previous Sidebar + TopNav pattern.
+
+### Design
+- **Style:** Creative floating pill-shaped bar with glassmorphism (frosted blur background, subtle glow borders)
+- **Interaction:** Grouped dropdown menus on click/hover
+- **Behaviour:** Role-aware — nav links render only for the roles that can access them
+
+### Nav Groups & Role Visibility
+
+| Group | Links | Student | Teacher | Contributor | Main Contributor |
+|---|---|:---:|:---:|:---:|:---:|
+| **Plan** | Timetable, Exam Countdown, Grade Calculator | ✅ | ✅ | ✅ | ✅ |
+| **Study Tools** | Flashcards, Pomodoro Timer | ✅ | ✅ | ✅ | ✅ |
+| **Learn** | Lesson Tracker, Course Manager | ✅ | ✅ | ✅ | ✅ |
+| **Community** | Classrooms, Clubs | ✅ | ✅ | ✅ | ✅ |
+| **Editor** | Curriculum & Notes Editor, Exam Data Editor | ❌ | ❌ | ✅ | ✅ |
+| **Review** | Gatekeeper / Review Queue | ❌ | ❌ | ❌ | ✅ |
+| **Profile** | My Contributor Profile | ❌ | ❌ | ✅ | ✅ |
+
+> Classroom pages adapt their content by role: Students see a join/browse view; Teachers see a manage/create view.
+
+### Post-Login Redirect (middleware.ts)
+After a successful login, `middleware.ts` reads the session role and redirects:
+
+| Role | Redirects to |
+|---|---|
+| `student` | `/student` |
+| `teacher` | `/teacher` |
+| `contributor` | `/contributor` |
+| `main_contributor` | `/main-contributor` |
 
 ---
 
@@ -195,4 +283,5 @@ To maintain ecosystem stability, AI coding assistants must adhere to the followi
 5. **Constants Are Not Components:** Grade boundaries, colour maps, and qualification lists go in `src/constants/` — never inside components or mockDatabase.
 6. **Server Actions Live in `src/actions/`:** Never define a `'use server'` function inside a component file. Place it in the appropriate `src/actions/*.ts` file.
 7. **Styling Consistency:** Use Tailwind CSS v4 utility classes only. No hardcoded `px`/`py` values. Use `lucide-react` for all icons.
-8. **Respect 🔒 Ownership:** Do not create, edit, or delete files marked with another developer's lock. If a shared file needs changing, notify the Project Manager.
+8. **Respect 🔒 Ownership:** Do not create, edit, or delete files marked with another developer's lock. If a shared file needs changing, notify the PM.
+9. **No Dashboard Directory:** There is no `/dashboard` route. Role landing pages live at `/student`, `/teacher`, `/contributor`, and `/main-contributor` respectively.
