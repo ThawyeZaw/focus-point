@@ -1,0 +1,104 @@
+'use client';
+
+// ──────────────────────────────────────────────────────────────────────────────
+// The ANTS — Student Landing Page
+// Today's snapshot, quick-link grid, and placeholder stats.
+// ──────────────────────────────────────────────────────────────────────────────
+
+import Link from 'next/link';
+import {
+  CalendarDays,
+  Timer,
+  Layers,
+  ClipboardCheck,
+  BookOpen,
+  GraduationCap,
+  MessageSquare,
+  Clock,
+  Calculator,
+  Flame,
+  Zap,
+  TrendingUp,
+} from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { cn } from '@/lib/utils';
+
+const QUICK_LINKS = [
+  { title: 'Timetable', description: 'Manage your schedule', href: '/timetable', icon: <CalendarDays className="h-5 w-5" />, gradient: 'from-blue-500 to-cyan-400' },
+  { title: 'Pomodoro', description: 'Focus sessions', href: '/pomodoro', icon: <Timer className="h-5 w-5" />, gradient: 'from-rose-500 to-pink-400' },
+  { title: 'Flashcards', description: 'Spaced repetition', href: '/flashcards', icon: <Layers className="h-5 w-5" />, gradient: 'from-violet-500 to-purple-400' },
+  { title: 'Lessons', description: 'Track confidence', href: '/lessons', icon: <ClipboardCheck className="h-5 w-5" />, gradient: 'from-emerald-500 to-teal-400' },
+  { title: 'Courses', description: 'Manage subjects', href: '/courses', icon: <BookOpen className="h-5 w-5" />, gradient: 'from-orange-500 to-amber-400' },
+  { title: 'Classrooms', description: 'Join a class', href: '/classrooms', icon: <GraduationCap className="h-5 w-5" />, gradient: 'from-sky-500 to-blue-400' },
+  { title: 'Clubs', description: 'Community spaces', href: '/clubs', icon: <MessageSquare className="h-5 w-5" />, gradient: 'from-indigo-500 to-violet-400' },
+  { title: 'Countdown', description: 'Exam timers', href: '/countdown', icon: <Clock className="h-5 w-5" />, gradient: 'from-red-500 to-rose-400' },
+  { title: 'Calculator', description: 'Grade prediction', href: '/calculator', icon: <Calculator className="h-5 w-5" />, gradient: 'from-teal-500 to-emerald-400' },
+];
+
+const STATS = [
+  { label: 'Study Streak', value: '7 days', icon: <Flame className="h-5 w-5" />, color: 'text-orange-500 bg-orange-500/10' },
+  { label: 'Cards Due', value: '24', icon: <Zap className="h-5 w-5" />, color: 'text-violet-500 bg-violet-500/10' },
+  { label: 'Next Exam', value: '18 days', icon: <Clock className="h-5 w-5" />, color: 'text-red-500 bg-red-500/10' },
+  { label: 'Avg. Confidence', value: '72%', icon: <TrendingUp className="h-5 w-5" />, color: 'text-emerald-500 bg-emerald-500/10' },
+];
+
+export default function StudentLandingPage() {
+  const { user } = useAuth();
+  const firstName = user?.profile?.name?.split(' ')[0] ?? 'Student';
+
+  return (
+    <div className="space-y-8 animate-fade-in">
+      {/* Welcome Card */}
+      <div className="bg-gradient-to-br from-blue-500 to-cyan-400 rounded-2xl p-8 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="relative z-10">
+          <p className="text-blue-100 text-sm font-medium">Welcome back</p>
+          <h1 className="text-3xl font-bold mt-1">{firstName} 👋</h1>
+          <p className="text-blue-100 mt-2 max-w-md">
+            Here&apos;s your study snapshot for today. Keep up the great work!
+          </p>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {STATS.map((stat) => (
+          <div
+            key={stat.label}
+            className="bg-background-card border border-border rounded-xl p-5 hover:shadow-md transition-all duration-200"
+          >
+            <div className={cn('inline-flex p-2 rounded-lg mb-3', stat.color)}>
+              {stat.icon}
+            </div>
+            <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+            <p className="text-sm text-foreground-muted mt-0.5">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Quick Links */}
+      <div>
+        <h2 className="text-xl font-bold text-foreground mb-4">Quick Access</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {QUICK_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="group flex items-center gap-4 bg-background-card border border-border rounded-xl p-4 hover:border-border-hover hover:shadow-md transition-all duration-200"
+            >
+              <div className={cn('p-2.5 rounded-xl bg-gradient-to-br text-white shrink-0', link.gradient)}>
+                {link.icon}
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {link.title}
+                </p>
+                <p className="text-sm text-foreground-muted">{link.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
