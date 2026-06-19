@@ -6,12 +6,13 @@
 // Also shows read-only account info.
 // ──────────────────────────────────────────────────────────────────────────────
 
-import { Check, Sun, Moon, Palette, User, Mail, Shield } from 'lucide-react';
+import { Check, Sun, Moon, Palette, User, Mail, Shield, ArrowLeft } from 'lucide-react';
 import { useTheme, COLOR_PRESETS, type ThemeColor } from '@/context/ThemeContext';
 import { useAuth } from '@/hooks/useAuth';
 import { RoleBadge } from '@/components/ui/Badge';
 import { cn, getInitials } from '@/lib/utils';
 import { useRole } from '@/hooks/useRole';
+import { useRouter } from 'next/navigation';
 
 // ── Section Wrapper ───────────────────────────────────────────────────────────
 
@@ -199,8 +200,21 @@ function AccountInfo() {
 // ── Main Settings Page ────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
+  const router = useRouter();
+
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
+      {/* Back Button */}
+      <div>
+        <button 
+          onClick={() => router.back()}
+          className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-background-card border border-border shadow-sm hover:shadow-md hover:border-primary/40 text-sm font-medium text-foreground transition-all duration-300 cursor-pointer mb-6 w-fit"
+        >
+          <ArrowLeft className="h-4 w-4 text-foreground-muted group-hover:text-primary group-hover:-translate-x-0.5 transition-all duration-300" />
+          Go Back
+        </button>
+      </div>
+
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">Settings</h1>

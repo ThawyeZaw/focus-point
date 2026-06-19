@@ -237,7 +237,7 @@ export default function NavBar() {
         <nav className="glass rounded-2xl px-4 py-2 flex items-center justify-between animate-glow">
           {/* ─── Logo ─── */}
           <Link
-            href={role ? `/${role === 'main_contributor' ? 'main-contributor' : role}` : '/'}
+            href={role ? '/dashboard' : '/'}
             className="flex items-center gap-2 shrink-0"
           >
             <span className="text-xl">🐜</span>

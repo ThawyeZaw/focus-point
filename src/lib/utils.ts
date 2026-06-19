@@ -24,13 +24,7 @@ export function getRoleDisplayName(role: UserRole): string {
  * Get the URL path for a role's landing page.
  */
 export function getRoleLandingPath(role: UserRole): string {
-  const paths: Record<UserRole, string> = {
-    student: '/student',
-    teacher: '/teacher',
-    contributor: '/contributor',
-    main_contributor: '/main-contributor',
-  };
-  return paths[role];
+  return '/dashboard';
 }
 
 /**
