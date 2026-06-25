@@ -333,8 +333,10 @@
 | `id` | `uuid` | Primary |
 | `owner_id` | `uuid` |  |
 | `curriculum_id` | `uuid` |  Nullable |
+| `subject_id` | `uuid` |  Nullable |
 | `name` | `text` |  Nullable |
 | `description` | `text` |  Nullable |
+| `category` | `text` |  Nullable |
 | `is_public` | `bool` |  Nullable |
 | `created_at` | `timestamp` |  Nullable |
 
