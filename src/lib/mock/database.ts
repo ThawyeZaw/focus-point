@@ -23,6 +23,11 @@ import {
   ClubMember,
   ClubMessage,
   ClubSubject,
+  Deck,
+  FlashCard,
+  CardReview,
+  SRSRating,
+  ParsedAICard,
 } from '@/types';
 import { generateUsername } from '@/lib/utils';
 
@@ -505,17 +510,99 @@ export const mockPomodoroSessions = [
 ];
 
 // ── Mock Flashcards ─────────────────────────────────────────────────────────
-export const mockDecks = [
-  { id: 'deck-1', owner_id: 'user-student-001', curriculum_id: 'curr-1', name: 'Physics Formulas', description: 'Important formulas for IGCSE', is_public: true, created_at: '2026-02-01T00:00:00Z' }
+export let mockDecks: Deck[] = [
+  {
+    id: 'deck-1',
+    owner_id: 'user-student-001',
+    curriculum_id: 'curr-1',
+    subject_id: 'subj-1',
+    name: 'Physics Formulas',
+    description: 'Core IGCSE Physics formulas — forces, motion, energy, waves.',
+    category: 'Physics',
+    is_public: true,
+    created_at: '2026-02-01T00:00:00Z',
+  },
+  {
+    id: 'deck-2',
+    owner_id: 'user-contributor-001',
+    curriculum_id: null,
+    subject_id: null,
+    name: 'Biology Key Terms',
+    description: 'Essential definitions for IGCSE & A Level Biology.',
+    category: 'Biology',
+    is_public: true,
+    created_at: '2026-03-10T00:00:00Z',
+  },
+  {
+    id: 'deck-3',
+    owner_id: 'user-contributor-002',
+    curriculum_id: null,
+    subject_id: null,
+    name: 'Chemistry Reactions',
+    description: 'Key organic and inorganic reactions for A Level Chemistry.',
+    category: 'Chemistry',
+    is_public: true,
+    created_at: '2026-04-05T00:00:00Z',
+  },
+  {
+    id: 'deck-4',
+    owner_id: 'user-student-001',
+    curriculum_id: null,
+    subject_id: null,
+    name: 'Maths Revision',
+    description: 'My personal maths notes and formulas.',
+    category: 'Mathematics',
+    is_public: false,
+    created_at: '2026-05-15T00:00:00Z',
+  },
+  {
+    id: 'deck-5',
+    owner_id: 'user-student-002',
+    curriculum_id: null,
+    subject_id: null,
+    name: 'IELTS Vocabulary',
+    description: 'Academic word list for IELTS Academic band 7+.',
+    category: 'IELTS',
+    is_public: true,
+    created_at: '2026-05-20T00:00:00Z',
+  },
 ];
 
-export const mockCards = [
-  { id: 'card-1', deck_id: 'deck-1', front_text: 'F = ?', back_text: 'ma', created_at: '2026-02-01T00:00:00Z' },
-  { id: 'card-2', deck_id: 'deck-1', front_text: 'v = ?', back_text: 's/t', created_at: '2026-02-01T00:00:00Z' }
+export let mockCards: FlashCard[] = [
+  // deck-1: Physics Formulas
+  { id: 'card-1', deck_id: 'deck-1', front_text: 'What is Newton\'s Second Law?', back_text: 'F = ma\n(Force = mass × acceleration)', created_at: '2026-02-01T00:00:00Z' },
+  { id: 'card-2', deck_id: 'deck-1', front_text: 'Formula for speed', back_text: 'v = s / t\n(speed = distance ÷ time)', created_at: '2026-02-01T00:00:00Z' },
+  { id: 'card-3', deck_id: 'deck-1', front_text: 'What is kinetic energy?', back_text: 'KE = ½mv²\n(half × mass × velocity squared)', created_at: '2026-02-01T00:00:00Z' },
+  { id: 'card-4', deck_id: 'deck-1', front_text: 'Formula for gravitational potential energy', back_text: 'GPE = mgh\n(mass × gravitational field strength × height)', created_at: '2026-02-01T00:00:00Z' },
+  { id: 'card-5', deck_id: 'deck-1', front_text: 'What is Ohm\'s Law?', back_text: 'V = IR\n(Voltage = Current × Resistance)', created_at: '2026-02-02T00:00:00Z' },
+  { id: 'card-6', deck_id: 'deck-1', front_text: 'Formula for wave speed', back_text: 'v = fλ\n(wave speed = frequency × wavelength)', created_at: '2026-02-02T00:00:00Z' },
+  // deck-2: Biology Key Terms
+  { id: 'card-7', deck_id: 'deck-2', front_text: 'Define osmosis', back_text: 'The net movement of water molecules from a region of higher water potential to a region of lower water potential through a partially permeable membrane.', created_at: '2026-03-10T00:00:00Z' },
+  { id: 'card-8', deck_id: 'deck-2', front_text: 'What is active transport?', back_text: 'Movement of substances against a concentration gradient using energy (ATP) and carrier proteins.', created_at: '2026-03-10T00:00:00Z' },
+  { id: 'card-9', deck_id: 'deck-2', front_text: 'What is the role of mitochondria?', back_text: 'Site of aerobic respiration — produces ATP from glucose and oxygen.', created_at: '2026-03-11T00:00:00Z' },
+  { id: 'card-10', deck_id: 'deck-2', front_text: 'Define homeostasis', back_text: 'The maintenance of a stable internal environment within tolerable limits despite changes in the external environment.', created_at: '2026-03-11T00:00:00Z' },
+  { id: 'card-11', deck_id: 'deck-2', front_text: 'What is the difference between DNA and RNA?', back_text: 'DNA is double-stranded, contains deoxyribose and thymine. RNA is single-stranded, contains ribose and uracil.', created_at: '2026-03-12T00:00:00Z' },
+  // deck-3: Chemistry Reactions
+  { id: 'card-12', deck_id: 'deck-3', front_text: 'What is the product of an acid + metal carbonate?', back_text: 'Salt + Water + Carbon dioxide\n(e.g. HCl + CaCO₃ → CaCl₂ + H₂O + CO₂)', created_at: '2026-04-05T00:00:00Z' },
+  { id: 'card-13', deck_id: 'deck-3', front_text: 'Define electrophilic addition', back_text: 'A reaction in which an electrophile attacks a π bond (double bond), adding across it to form a saturated product.', created_at: '2026-04-05T00:00:00Z' },
+  { id: 'card-14', deck_id: 'deck-3', front_text: 'What is Le Chatelier\'s Principle?', back_text: 'If a dynamic equilibrium is disturbed by changing conditions, the position of equilibrium shifts to counteract the change.', created_at: '2026-04-06T00:00:00Z' },
+  // deck-4: Maths Revision (private, student-001)
+  { id: 'card-15', deck_id: 'deck-4', front_text: 'Quadratic formula', back_text: 'x = (-b ± √(b²-4ac)) / 2a', created_at: '2026-05-15T00:00:00Z' },
+  { id: 'card-16', deck_id: 'deck-4', front_text: 'Area of a circle', back_text: 'A = πr²', created_at: '2026-05-15T00:00:00Z' },
+  { id: 'card-17', deck_id: 'deck-4', front_text: 'Pythagoras theorem', back_text: 'a² + b² = c²\n(where c is the hypotenuse)', created_at: '2026-05-16T00:00:00Z' },
+  // deck-5: IELTS Vocabulary
+  { id: 'card-18', deck_id: 'deck-5', front_text: 'Ubiquitous', back_text: '(adj) Present, appearing, or found everywhere.\nE.g. "Mobile phones are now ubiquitous in modern society."', created_at: '2026-05-20T00:00:00Z' },
+  { id: 'card-19', deck_id: 'deck-5', front_text: 'Proliferate', back_text: '(v) To increase rapidly in number or amount.\nE.g. "Social media platforms have proliferated in recent years."', created_at: '2026-05-20T00:00:00Z' },
+  { id: 'card-20', deck_id: 'deck-5', front_text: 'Exacerbate', back_text: '(v) To make a problem or situation worse.\nE.g. "Pollution exacerbates the effects of climate change."', created_at: '2026-05-21T00:00:00Z' },
 ];
 
-export const mockCardReviews = [
-  { id: 'cr-1', card_id: 'card-1', user_id: 'user-student-001', interval_days: 1, ease_factor: 2.5, next_review_date: '2026-06-18T00:00:00Z', last_rating: 'good' }
+export let mockCardReviews: CardReview[] = [
+  // student-001 has reviewed some deck-1 cards
+  { id: 'cr-1', card_id: 'card-1', user_id: 'user-student-001', interval_days: 4, ease_factor: 2.6, next_review_date: '2026-06-29T00:00:00Z', last_rating: 'good' },
+  { id: 'cr-2', card_id: 'card-2', user_id: 'user-student-001', interval_days: 1, ease_factor: 2.18, next_review_date: '2026-06-25T00:00:00Z', last_rating: 'hard' },
+  { id: 'cr-3', card_id: 'card-3', user_id: 'user-student-001', interval_days: 7, ease_factor: 2.65, next_review_date: '2026-07-01T00:00:00Z', last_rating: 'easy' },
+  { id: 'cr-4', card_id: 'card-15', user_id: 'user-student-001', interval_days: 1, ease_factor: 2.5, next_review_date: '2026-06-25T00:00:00Z', last_rating: 'again' },
+  { id: 'cr-5', card_id: 'card-16', user_id: 'user-student-001', interval_days: 3, ease_factor: 2.5, next_review_date: '2026-06-27T00:00:00Z', last_rating: 'good' },
 ];
 
 // ── Mock Exams & Grades ─────────────────────────────────────────────────────
@@ -943,10 +1030,10 @@ function generateInviteCode(name: string): string {
   return `${prefix}${Math.floor(100 + Math.random() * 900)}`;
 }
 
-export const getDeck = (id: string) =>
+export const getDeck = (id: string): Deck | undefined =>
   mockDecks.find(d => d.id === id);
 
-export const getCardsByDeck = (deckId: string) =>
+export const getCardsByDeck = (deckId: string): FlashCard[] =>
   mockCards.filter(c => c.deck_id === deckId);
 
 export const getExam = (id: string) =>
@@ -966,3 +1053,208 @@ export const getUserNotifications = (userId: string) =>
 
 export const getUserActivityFeed = (userId: string) =>
   mockActivityFeed.filter(a => a.user_id === userId);
+
+// ── Flashcard Query Helpers ──────────────────────────────────────────────────
+
+/** All decks owned by a user */
+export const getDecksByUser = (userId: string): Deck[] =>
+  mockDecks.filter(d => d.owner_id === userId);
+
+/** All public decks (for the library browser) */
+export const getPublicDecks = (): Deck[] =>
+  mockDecks.filter(d => d.is_public);
+
+/** Get the SRS review record for a specific card + user */
+export const getUserCardReview = (cardId: string, userId: string): CardReview | undefined =>
+  mockCardReviews.find(r => r.card_id === cardId && r.user_id === userId);
+
+/** Get all review records for a user on a deck's cards */
+export const getDeckReviews = (deckId: string, userId: string): CardReview[] => {
+  const cardIds = mockCards.filter(c => c.deck_id === deckId).map(c => c.id);
+  return mockCardReviews.filter(r => cardIds.includes(r.card_id) && r.user_id === userId);
+};
+
+/**
+ * Cards due for review (next_review_date <= now) or never reviewed yet.
+ * Returns all cards that should appear in today's study session.
+ */
+export const getDueCards = (deckId: string, userId: string): FlashCard[] => {
+  const cards = getCardsByDeck(deckId);
+  const now = new Date().toISOString();
+  return cards.filter(card => {
+    const review = getUserCardReview(card.id, userId);
+    if (!review) return true; // never studied = always due
+    return review.next_review_date <= now;
+  });
+};
+
+/** Total number of due cards across all of a user's decks */
+export const getTotalDueCount = (userId: string): number => {
+  const userDecks = getDecksByUser(userId);
+  return userDecks.reduce((total, deck) => total + getDueCards(deck.id, userId).length, 0);
+};
+
+// ── Flashcard Mutation Helpers ───────────────────────────────────────────────
+
+/** Create a new deck */
+export function createDeck(data: {
+  owner_id: string;
+  name: string;
+  description?: string;
+  category?: string;
+  curriculum_id?: string;
+  subject_id?: string;
+  is_public?: boolean;
+}): Deck {
+  const deck: Deck = {
+    id: `deck-${Date.now()}`,
+    owner_id: data.owner_id,
+    curriculum_id: data.curriculum_id || null,
+    subject_id: data.subject_id || null,
+    name: data.name,
+    description: data.description || null,
+    category: data.category || null,
+    is_public: data.is_public ?? false,
+    created_at: new Date().toISOString(),
+  };
+  mockDecks.unshift(deck);
+  return deck;
+}
+
+/** Update deck metadata */
+export function updateDeck(
+  deckId: string,
+  data: Partial<Pick<Deck, 'name' | 'description' | 'category' | 'is_public' | 'curriculum_id' | 'subject_id'>>
+): { success: true; deck: Deck } | { success: false; error: string } {
+  const deck = mockDecks.find(d => d.id === deckId);
+  if (!deck) return { success: false, error: 'Deck not found.' };
+  Object.assign(deck, data);
+  return { success: true, deck: { ...deck } };
+}
+
+/** Delete a deck and all its cards */
+export function deleteDeck(deckId: string): { success: true } | { success: false; error: string } {
+  const idx = mockDecks.findIndex(d => d.id === deckId);
+  if (idx < 0) return { success: false, error: 'Deck not found.' };
+  mockDecks.splice(idx, 1);
+  // Remove all cards and their reviews
+  const cardIds = mockCards.filter(c => c.deck_id === deckId).map(c => c.id);
+  mockCards = mockCards.filter(c => c.deck_id !== deckId);
+  mockCardReviews = mockCardReviews.filter(r => !cardIds.includes(r.card_id));
+  return { success: true };
+}
+
+/**
+ * Clone a public deck into a user's personal collection.
+ * Creates a new deck + deep copies all cards. SRS state starts fresh.
+ */
+export function cloneDeck(deckId: string, userId: string): { success: true; deck: Deck } | { success: false; error: string } {
+  const original = getDeck(deckId);
+  if (!original) return { success: false, error: 'Deck not found.' };
+  if (!original.is_public) return { success: false, error: 'This deck is private.' };
+
+  const newDeck: Deck = {
+    ...original,
+    id: `deck-${Date.now()}`,
+    owner_id: userId,
+    name: `${original.name} (Copy)`,
+    is_public: false,
+    created_at: new Date().toISOString(),
+  };
+  mockDecks.unshift(newDeck);
+
+  const originalCards = getCardsByDeck(deckId);
+  originalCards.forEach(card => {
+    mockCards.push({
+      id: `card-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      deck_id: newDeck.id,
+      front_text: card.front_text,
+      back_text: card.back_text,
+      created_at: new Date().toISOString(),
+    });
+  });
+
+  return { success: true, deck: newDeck };
+}
+
+/** Add a card to a deck */
+export function createCard(data: {
+  deck_id: string;
+  front_text: string;
+  back_text: string;
+}): FlashCard {
+  const card: FlashCard = {
+    id: `card-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    deck_id: data.deck_id,
+    front_text: data.front_text,
+    back_text: data.back_text,
+    created_at: new Date().toISOString(),
+  };
+  mockCards.push(card);
+  return card;
+}
+
+/** Update an existing card's content */
+export function updateCard(
+  cardId: string,
+  data: Partial<Pick<FlashCard, 'front_text' | 'back_text'>>
+): { success: true; card: FlashCard } | { success: false; error: string } {
+  const card = mockCards.find(c => c.id === cardId);
+  if (!card) return { success: false, error: 'Card not found.' };
+  if (data.front_text !== undefined) card.front_text = data.front_text;
+  if (data.back_text !== undefined) card.back_text = data.back_text;
+  return { success: true, card: { ...card } };
+}
+
+/** Delete a card and its review records */
+export function deleteCard(cardId: string): { success: true } | { success: false; error: string } {
+  const idx = mockCards.findIndex(c => c.id === cardId);
+  if (idx < 0) return { success: false, error: 'Card not found.' };
+  mockCards.splice(idx, 1);
+  mockCardReviews = mockCardReviews.filter(r => r.card_id !== cardId);
+  return { success: true };
+}
+
+/**
+ * Batch-import parsed AI cards into a deck.
+ * Returns the created cards.
+ */
+export function importCardsFromParsed(deckId: string, cards: ParsedAICard[]): FlashCard[] {
+  return cards.map(c => createCard({
+    deck_id: deckId,
+    front_text: c.front,
+    back_text: c.back,
+  }));
+}
+
+/**
+ * Create or update the SRS review state for a card after a study session rating.
+ * This is the main mutation called by the SM-2 algorithm result.
+ */
+export function upsertCardReview(
+  cardId: string,
+  userId: string,
+  data: {
+    interval_days: number;
+    ease_factor: number;
+    next_review_date: string;
+    last_rating: SRSRating;
+  }
+): CardReview {
+  const existing = mockCardReviews.find(r => r.card_id === cardId && r.user_id === userId);
+  if (existing) {
+    existing.interval_days = data.interval_days;
+    existing.ease_factor = data.ease_factor;
+    existing.next_review_date = data.next_review_date;
+    existing.last_rating = data.last_rating;
+    return { ...existing };
+  }
+  const newReview: CardReview = {
+    id: `cr-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    card_id: cardId,
+    user_id: userId,
+    ...data,
+  };
+  mockCardReviews.push(newReview);
+  return newReview;
+}

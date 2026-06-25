@@ -216,3 +216,63 @@ export interface ClubSubject {
   club_id: string;
   subject_id: string;
 }
+
+// -----------------------------------------------------------------------------
+// Flashcards & Spaced Repetition
+// -----------------------------------------------------------------------------
+
+/** Rating a user gives to a flashcard during review (maps to SM-2 quality scores) */
+export type SRSRating = 'again' | 'hard' | 'good' | 'easy';
+
+/** A flashcard deck (maps to `decks` table) */
+export interface Deck {
+  id: string;
+  owner_id: string;
+  curriculum_id: string | null;
+  /** Optional link to a specific subject within a curriculum */
+  subject_id: string | null;
+  name: string;
+  description: string | null;
+  /** Free-text category tag, e.g. "Biology", "History", "Custom" */
+  category: string | null;
+  is_public: boolean;
+  created_at: string;
+}
+
+/** A single flashcard (maps to `cards` table) */
+export interface FlashCard {
+  id: string;
+  deck_id: string;
+  front_text: string;
+  back_text: string;
+  created_at: string;
+}
+
+/** Per-user SRS state for a card (maps to `card_reviews` table) */
+export interface CardReview {
+  id: string;
+  card_id: string;
+  user_id: string;
+  interval_days: number;
+  ease_factor: number;
+  next_review_date: string;
+  last_rating: SRSRating | null;
+}
+
+/** State object for an active study session (client-side only, not persisted) */
+export interface StudySessionState {
+  deckId: string;
+  dueCards: FlashCard[];
+  currentIndex: number;
+  isFlipped: boolean;
+  sessionComplete: boolean;
+  ratings: Record<SRSRating, number>;
+}
+
+/** A single card parsed from raw AI output (used in the AI import preview) */
+export interface ParsedAICard {
+  front: string;
+  back: string;
+  /** Whether the user has confirmed/edited this card in the preview */
+  confirmed: boolean;
+}
