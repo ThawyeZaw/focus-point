@@ -82,7 +82,7 @@ export function useLessons() {
       .map((uc) => uc.curriculum_id);
 
     return enrolledIds
-      .map((cid) => {
+      .map((cid): CurriculumItem | null => {
         const curriculum = mockCurriculums.find((c) => c.id === cid);
         if (!curriculum) return null;
 
