@@ -37,6 +37,9 @@ import {
   ActivityEntry,
   AchievementEntry,
   DEFAULT_CLUB_FEATURES,
+  Note,
+
+  UserSavedNote,
 } from '@/types';
 import { generateUsername } from '@/lib/utils';
 
@@ -748,9 +751,20 @@ export const mockResources = [
   { id: 'res-1', curriculum_id: 'curr-1', contributor_id: 'user-contributor-001', title: 'Forces Cheatsheet', content: 'https://example.com/forces.pdf', resource_type: 'pdf', status: 'published', is_public: true, created_at: '2025-02-01T00:00:00Z', updated_at: '2025-02-01T00:00:00Z' }
 ];
 
-export const mockEditorSubmissions = [
-  { id: 'sub-1', contributor_id: 'user-contributor-001', submission_type: 'resource', entity_id: 'res-1', status: 'approved', reviewer_id: 'user-main-contributor-001', feedback: 'Looks good', submitted_at: '2025-01-20T00:00:00Z', reviewed_at: '2025-01-21T00:00:00Z' }
-];
+export const mockEditorSubmissions: Array<{
+  id: string;
+  contributor_id: string;
+  submission_type: string;
+  entity_id: string;
+  status: string;
+  reviewer_id: string | null;
+  feedback: string | null;
+  submitted_at: string;
+  reviewed_at: string | null;
+}> = [
+    { id: 'sub-1', contributor_id: 'user-contributor-001', submission_type: 'resource', entity_id: 'res-1', status: 'approved', reviewer_id: 'user-main-contributor-001', feedback: 'Looks good', submitted_at: '2025-01-20T00:00:00Z', reviewed_at: '2025-01-21T00:00:00Z' }
+  ];
+
 
 // ── Mock Classrooms ─────────────────────────────────────────────────────────
 export const mockClassrooms = [
@@ -1009,7 +1023,7 @@ export const mockReviewQueueStats = [
 
 // ── Curriculum Notes ─────────────────────────────────────────────────────────
 
-export const mockNotes = [
+export const mockCurriculumNotes = [
   {
     id: 'note-1',
     curriculum_id: 'curr-1',
