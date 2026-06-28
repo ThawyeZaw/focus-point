@@ -978,7 +978,7 @@ export const mockExams: Exam[] = [
   { id: 'exam-1', curriculum_id: 'curr-1', title: 'IGCSE Physics Paper 2', exam_series: 'May/June 2027', exam_date: '2027-05-15T09:00:00Z', created_at: '2025-12-01T00:00:00Z' }
 ];
 
-export let mockExamCountdowns: ExamCountdown[] = [
+export const mockExamCountdowns: ExamCountdown[] = [
   { id: 'ec-1', user_id: 'user-student-001', exam_id: 'exam-1', custom_title: 'Physics Finals!', target_date: '2027-05-15T09:00:00Z', priority_indicator: 'high', qualification_group: 'IGCSE', created_at: '2026-01-01T00:00:00Z' }
 ];
 
@@ -1412,6 +1412,38 @@ export const getCardsByDeck = (deckId: string): FlashCard[] =>
 export const getExam = (id: string) =>
   mockExams.find(e => e.id === id);
 
+export const getExams = (): Exam[] =>
+  [...mockExams];
+
+export const createExamCountdown = (data: {
+  user_id: string;
+  exam_id: string | null;
+  custom_title: string | null;
+  target_date: string | null;
+  priority_indicator: string;
+  qualification_group: string;
+}): ExamCountdown => {
+  const countdown: ExamCountdown = {
+    id: `ec-${Date.now()}`,
+    user_id: data.user_id,
+    exam_id: data.exam_id,
+    custom_title: data.custom_title,
+    target_date: data.target_date,
+    priority_indicator: data.priority_indicator,
+    qualification_group: data.qualification_group,
+    created_at: new Date().toISOString(),
+  };
+  mockExamCountdowns.push(countdown);
+  return countdown;
+};
+
+export const deleteExamCountdown = (id: string): { success: boolean } => {
+  const idx = mockExamCountdowns.findIndex(c => c.id === id);
+  if (idx < 0) return { success: false };
+  mockExamCountdowns.splice(idx, 1);
+  return { success: true };
+};
+
 export const getUserTimetable = (userId: string) =>
   mockTimetableEvents.filter(e => e.user_id === userId);
 
@@ -1634,7 +1666,7 @@ export function upsertCardReview(
 
 // ── Mock Notes ──────────────────────────────────────────────────────────────
 
-export let mockNotes: Note[] = [
+export const mockNotes: Note[] = [
   {
     id: 'note-001',
     title: "Newton's Laws of Motion — Complete Guide",
@@ -1805,7 +1837,7 @@ export let mockNotes: Note[] = [
   },
 ];
 
-export let mockUserSavedNotes: UserSavedNote[] = [
+export const mockUserSavedNotes: UserSavedNote[] = [
   { id: 'usn-001', user_id: 'user-student-001', note_id: 'note-001', saved_at: '2026-06-10T09:00:00Z' },
   { id: 'usn-002', user_id: 'user-student-001', note_id: 'note-005', saved_at: '2026-06-12T14:00:00Z' },
 ];
